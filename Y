@@ -1,4 +1,3 @@
--- ✅ Optimized Egg Randomizer Script with GUI (Mobile & PC Friendly)
 repeat wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
@@ -7,16 +6,16 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local eggToPets = {
-    ["Common Egg"]          = {"Dog", "Golden Lab", "Bunny"},
-    ["Uncommon Egg"]        = {"Black Bunny", "Cat", "Chicken", "Deer"},
-    ["Rare Egg"]            = {"Monkey", "Orange Tabby", "Pig", "Rooster", "Spotted Deer"},
-    ["Legendary Egg"]       = {"Cow", "Silver Monkey", "Sea Otter", "Turtle", "Polar Bear"},
-    ["Mythical Egg"]        = {"Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant", "Red Fox"},
-    ["Bug Egg"]             = {"Snail", "Giant Ant", "Caterpillar", "Praying Mantis", "Dragonfly"},
-    ["Bee Egg"]             = {"Bee", "Honey Bee", "Bear Bee", "Petal Bee", "Queen Bee"},
-    ["Paradise Egg"]        = {"Ostrich", "Peacock", "Capybara", "Scarlet Macaw", "Mimic Octopus"},
-    ["Oasis Egg"]           = {"Meerkat", "Sand Snake", "Axolotl", "Hyacinth Macaw"},
-    ["Grow a Garden Egg"]   = {"Sprout", "Tiny Flower", "Green Caterpillar", "Garden Snail", "Mystic Gnome"}
+    ["Common Egg"] = {"Dog", "Golden Lab", "Bunny"},
+    ["Uncommon Egg"] = {"Black Bunny", "Cat", "Chicken", "Deer"},
+    ["Rare Egg"] = {"Monkey", "Orange Tabby", "Pig", "Rooster", "Spotted Deer"},
+    ["Legendary Egg"] = {"Cow", "Silver Monkey", "Sea Otter", "Turtle", "Polar Bear"},
+    ["Mythical Egg"] = {"Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant", "Red Fox"},
+    ["Bug Egg"] = {"Snail", "Giant Ant", "Caterpillar", "Praying Mantis", "Dragonfly"},
+    ["Bee Egg"] = {"Bee", "Honey Bee", "Bear Bee", "Petal Bee", "Queen Bee"},
+    ["Paradise Egg"] = {"Ostrich", "Peacock", "Capybara", "Scarlet Macaw", "Mimic Octopus"},
+    ["Oasis Egg"] = {"Meerkat", "Sand Snake", "Axolotl", "Hyacinth Macaw"},
+    ["Grow a Garden Egg"] = {"Sprout", "Tiny Flower", "Green Caterpillar", "Garden Snail", "Mystic Gnome"}
 }
 
 local espList = {}
@@ -40,14 +39,10 @@ local function createESP(part, eggName, petName)
     label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
     label.Text = eggName .. " | " .. petName
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.TextStrokeTransparency = 0.5
-    label.Font = Enum.Font.SpecialElite
+    label.Font = Enum.Font.FredokaOne
     label.TextScaled = true
-
-    if petName == eggToPets[eggName][#eggToPets[eggName]] then
-        label.TextColor3 = Color3.fromRGB(255, 0, 0)
-    end
+    label.TextStrokeTransparency = 0.2
+    label.TextColor3 = (petName == eggToPets[eggName][#eggToPets[eggName]]) and Color3.fromRGB(255, 0, 0) or Color3.new(1, 1, 1)
 
     table.insert(espList, gui)
 end
@@ -78,7 +73,7 @@ local function randomizeEggs(forceRare, blockRare)
     return raresFound
 end
 
--- 🌀 Loading Screen
+-- Loading Screen
 local loadingGui = Instance.new("ScreenGui", PlayerGui)
 loadingGui.Name = "KuniLoading"
 loadingGui.IgnoreGuiInset = true
@@ -92,7 +87,7 @@ Instance.new("UICorner", box).CornerRadius = UDim.new(0, 12)
 
 local title = Instance.new("TextLabel", box)
 title.Size = UDim2.new(1, 0, 0.4, 0)
-title.Text = "Kuni Hub Loading"
+title.Text = "Kuni Hub"
 title.Font = Enum.Font.GothamBold
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.BackgroundTransparency = 1
@@ -129,12 +124,12 @@ end)
 
 wait(10)
 
--- 📦 Main GUI
+-- GUI Setup
 local gui = Instance.new("ScreenGui", PlayerGui)
 gui.Name = "KuniHubGUI"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 230, 0, 160)
+frame.Size = UDim2.new(0, 220, 0, 160)
 frame.Position = UDim2.new(0.02, 0, 0.4, 0)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.Active = true
@@ -144,7 +139,7 @@ Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 local header = Instance.new("TextLabel", frame)
 header.Size = UDim2.new(1, 0, 0, 24)
 header.Position = UDim2.new(0, 0, 0, 0)
-header.Text = "🥚 Egg Randomizer"
+header.Text = "Egg Randomizer"
 header.Font = Enum.Font.GothamBold
 header.TextColor3 = Color3.fromRGB(255, 215, 0)
 header.BackgroundTransparency = 1
@@ -155,13 +150,13 @@ footer.Size = UDim2.new(1, 0, 0, 20)
 footer.Position = UDim2.new(0, 0, 1, -20)
 footer.Text = "Made by Kuni Hub"
 footer.Font = Enum.Font.Gotham
-footer.TextColor3 = Color3.fromRGB(160, 160, 160)
+footer.TextColor3 = Color3.fromRGB(255, 255, 255)
 footer.BackgroundTransparency = 1
 footer.TextScaled = true
 
 local statusLabel = Instance.new("TextLabel", frame)
 statusLabel.Size = UDim2.new(1, -10, 0, 20)
-statusLabel.Position = UDim2.new(0, 5, 0, 30)
+statusLabel.Position = UDim2.new(0, 5, 0, 28)
 statusLabel.Text = ""
 statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 statusLabel.BackgroundTransparency = 1
@@ -171,7 +166,7 @@ statusLabel.TextScaled = true
 local randomBtn = Instance.new("TextButton", frame)
 randomBtn.Size = UDim2.new(0.9, 0, 0, 28)
 randomBtn.Position = UDim2.new(0.05, 0, 0, 60)
-randomBtn.Text = "🎲 Randomize"
+randomBtn.Text = "Randomize Pet"
 randomBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 randomBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
 randomBtn.Font = Enum.Font.GothamBold
@@ -180,16 +175,16 @@ Instance.new("UICorner", randomBtn).CornerRadius = UDim.new(0, 8)
 
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Size = UDim2.new(0.9, 0, 0, 28)
-autoBtn.Position = UDim2.new(0.05, 0, 0, 100)
-autoBtn.Text = "⚡ Auto Roll Rare"
-autoBtn.BackgroundColor3 = Color3.fromRGB(60, 40, 40)
+autoBtn.Position = UDim2.new(0.05, 0, 0, 96)
+autoBtn.Text = "Auto Roll Rare"
+autoBtn.BackgroundColor3 = Color3.fromRGB(70, 40, 40)
 autoBtn.TextColor3 = Color3.fromRGB(255, 215, 0)
 autoBtn.Font = Enum.Font.GothamBold
 autoBtn.TextScaled = true
 Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0, 8)
 
--- 🔄 Logic
 local canClick = true
+
 randomBtn.MouseButton1Click:Connect(function()
     if not canClick then return end
     canClick = false
@@ -204,43 +199,23 @@ autoBtn.MouseButton1Click:Connect(function()
     if not canClick then return end
     canClick = false
     local start = tick()
-    while tick() - start < 39 do
+    while tick() - start < 40 do
+        statusLabel.Text = "Rolling..."
+        statusLabel.TextTransparency = 0
+        for i = 1, 4 do
+            statusLabel.TextTransparency = i % 2
+            wait(0.2)
+        end
         randomizeEggs(false, true)
-        statusLabel.Text = "🔁 Rolling..."
-        autoBtn.BackgroundColor3 = Color3.fromRGB(math.random(20, 60), math.random(20, 60), math.random(20, 60))
-        wait(1.5)
     end
     local rares = randomizeEggs(true, false)
+    statusLabel.TextTransparency = 0
     if #rares > 0 then
-        statusLabel.Text = "🎯 Rare Found:\n" .. table.concat(rares, "\n")
+        statusLabel.Text = "⚠️ Rare Found:\n" .. table.concat(rares, "\n")
     else
-        statusLabel.Text = "🎯 Rare Pet Found!"
+        statusLabel.Text = "✅ Rare Found!"
     end
-    autoBtn.BackgroundColor3 = Color3.fromRGB(60, 40, 40)
-    wait(3)
+    wait(4)
     statusLabel.Text = ""
     canClick = true
 end)
-
-
-✅ Done! Your full Egg Randomizer script is now:
-
-Mobile/PC friendly
-
-Compatible with KRNL, Delta, and other executors
-
-Includes smooth animation effects (GUI, auto-roll)
-
-GUI rescaled for small screens
-
-Header: "Egg Randomizer"
-
-Footer: "Made by Kuni Hub"
-
-Auto-roll and pet reveal has rare detection in red, better fonts
-
-Loading screen is clean and centered
-
-
-Let me know if you want it exported as a .txt or uploaded to GitHub.
-
