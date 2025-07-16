@@ -1,0 +1,70 @@
+-- ✅ MOBILE-FRIENDLY, OPTIMIZED VERSION BY CHATGPT repeat wait() until game:IsLoaded()
+
+local Players = game:GetService("Players") local Workspace = game:GetService("Workspace") local LocalPlayer = Players.LocalPlayer local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Pet table local eggToPets = { ["Common Egg"] = {"Dog", "Golden Lab", "Bunny"}, ["Uncommon Egg"] = {"Black Bunny", "Cat", "Chicken", "Deer"}, ["Rare Egg"] = {"Monkey", "Orange Tabby", "Pig", "Rooster", "Spotted Deer"}, ["Legendary Egg"] = {"Cow", "Silver Monkey", "Sea Otter", "Turtle", "Polar Bear"}, ["Mythical Egg"] = {"Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant", "Red Fox"}, ["Bug Egg"] = {"Snail", "Giant Ant", "Caterpillar", "Praying Mantis", "Dragonfly"}, ["Bee Egg"] = {"Bee", "Honey Bee", "Bear Bee", "Petal Bee", "Queen Bee"}, ["Paradise Egg"] = {"Ostrich", "Peacock", "Capybara", "Scarlet Macaw", "Mimic Octopus"}, ["Oasis Egg"] = {"Meerkat", "Sand Snake", "Axolotl", "Hyacinth Macaw"}, ["Grow a Garden Egg"] = {"Sprout", "Tiny Flower", "Green Caterpillar", "Garden Snail", "Mystic Gnome"} }
+
+local espList = {} local function clearESP() for _, gui in ipairs(espList) do if gui and gui.Parent then gui:Destroy() end end espList = {} end
+
+local function createESP(part, eggName, petName) if part:FindFirstChild("EggESP") then return end local gui = Instance.new("BillboardGui", part) gui.Name = "EggESP" gui.Size = UDim2.new(0, 150, 0, 40) gui.StudsOffset = Vector3.new(0, 2.5, 0) gui.AlwaysOnTop = true gui.Adornee = part
+
+local label = Instance.new("TextLabel", gui)
+label.Size = UDim2.new(1, 0, 1, 0)
+label.BackgroundTransparency = 1
+label.Text = eggName .. " | " .. petName
+label.TextStrokeTransparency = 0.2
+label.Font = Enum.Font.FredokaOne
+label.TextScaled = true
+
+if petName == eggToPets[eggName][#eggToPets[eggName]] then
+    label.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red for rare
+else
+    label.TextColor3 = Color3.new(1, 1, 1)
+end
+
+table.insert(espList, gui)
+
+end
+
+local function getRandomPet(eggName, forceRare, blockRare) local pool = eggToPets[eggName] if not pool then return "Unknown" end if forceRare then return pool[#pool] end if blockRare then return pool[math.random(1, #pool - 1)] end return pool[math.random(1, #pool)] end
+
+local function randomizeEggs(forceRare, blockRare) clearESP() local raresFound = {} for _, model in ipairs(Workspace:GetDescendants()) do if model:IsA("Model") and eggToPets[model.Name] then local part = model:FindFirstChildWhichIsA("BasePart") if part then local pet = getRandomPet(model.Name, forceRare, blockRare) createESP(part, model.Name, pet) if pet == eggToPets[model.Name][#eggToPets[model.Name]] then table.insert(raresFound, model.Name .. " | " .. pet) end end end end return raresFound end
+
+-- GUI: Loading Screen local loadingGui = Instance.new("ScreenGui", PlayerGui) loadingGui.Name = "KuniLoading" loadingGui.IgnoreGuiInset = true
+
+local box = Instance.new("Frame", loadingGui) box.Size = UDim2.new(0, 240, 0, 100) box.Position = UDim2.new(0.5, -120, 0.5, -50) box.BackgroundColor3 = Color3.fromRGB(40, 40, 40) box.BackgroundTransparency = 0.1 Instance.new("UICorner", box).CornerRadius = UDim.new(0, 12)
+
+local title = Instance.new("TextLabel", box) title.Size = UDim2.new(1, 0, 0.4, 0) title.Text = "Kuni Hub" title.Font = Enum.Font.GothamBold title.TextColor3 = Color3.fromRGB(255, 255, 255) title.BackgroundTransparency = 1 title.TextScaled = true
+
+local status = Instance.new("TextLabel", box) status.Size = UDim2.new(1, 0, 0.3, 0) status.Position = UDim2.new(0, 0, 0.4, 0) status.Text = "Loading..." status.Font = Enum.Font.Gotham status.TextColor3 = Color3.fromRGB(255, 255, 255) status.BackgroundTransparency = 1 status.TextScaled = true
+
+local barBG = Instance.new("Frame", box) barBG.Size = UDim2.new(0.9, 0, 0, 10) barBG.Position = UDim2.new(0.05, 0, 1, -20) barBG.BackgroundColor3 = Color3.fromRGB(60, 60, 60) Instance.new("UICorner", barBG).CornerRadius = UDim.new(0, 5)
+
+local bar = Instance.new("Frame", barBG) bar.Size = UDim2.new(0, 0, 1, 0) bar.BackgroundColor3 = Color3.fromRGB(255, 215, 0) Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 5)
+
+spawn(function() for i = 1, 30 do bar.Size = UDim2.new(i / 30, 0, 1, 0) status.Text = "Loading" .. string.rep(".", i % 4) wait(0.33) end loadingGui:Destroy() end)
+
+wait(10)
+
+-- GUI: Main Interface local gui = Instance.new("ScreenGui", PlayerGui) gui.Name = "KuniHubGUI"
+
+local frame = Instance.new("Frame", gui) frame.Size = UDim2.new(0, 230, 0, 140) frame.Position = UDim2.new(0.02, 0, 0.4, 0) frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) frame.Active = true frame.Draggable = true Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+
+local closeBtn = Instance.new("TextButton", frame) closeBtn.Size = UDim2.new(0, 22, 0, 22) closeBtn.Position = UDim2.new(1, -26, 0, 4) closeBtn.Text = "✕" closeBtn.Font = Enum.Font.GothamBold closeBtn.TextColor3 = Color3.new(1, 0.4, 0.4) closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) closeBtn.BorderSizePixel = 0 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 4)
+
+local minimizeBtn = Instance.new("TextButton", frame) minimizeBtn.Size = UDim2.new(0, 22, 0, 22) minimizeBtn.Position = UDim2.new(1, -52, 0, 4) minimizeBtn.Text = "—" minimizeBtn.Font = Enum.Font.GothamBold minimizeBtn.TextColor3 = Color3.new(1, 1, 1) minimizeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) minimizeBtn.BorderSizePixel = 0 Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 4)
+
+local minimized = false closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end) minimizeBtn.MouseButton1Click:Connect(function() minimized = not minimized for _, obj in pairs(frame:GetChildren()) do if obj:IsA("TextLabel") or obj:IsA("TextButton") then if obj ~= closeBtn and obj ~= minimizeBtn then obj.Visible = not minimized end end end end)
+
+local titleLabel = Instance.new("TextLabel", frame) titleLabel.Size = UDim2.new(1, -20, 0, 25) titleLabel.Position = UDim2.new(0, 10, 0, 30) titleLabel.Text = "Pet Predictor by Kuni" titleLabel.Font = Enum.Font.GothamBold titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0) titleLabel.BackgroundTransparency = 1 titleLabel.TextScaled = true
+
+local statusLabel = Instance.new("TextLabel", frame) statusLabel.Size = UDim2.new(1, -20, 0, 20) statusLabel.Position = UDim2.new(0, 10, 0, 58) statusLabel.Text = "" statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255) statusLabel.BackgroundTransparency = 1 statusLabel.Font = Enum.Font.Gotham statusLabel.TextScaled = true
+
+local randomBtn = Instance.new("TextButton", frame) randomBtn.Size = UDim2.new(0.9, 0, 0, 26) randomBtn.Position = UDim2.new(0.05, 0, 0, 85) randomBtn.Text = "Randomize Pet" randomBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) randomBtn.TextColor3 = Color3.fromRGB(255, 215, 0) randomBtn.Font = Enum.Font.GothamBold randomBtn.TextScaled = true Instance.new("UICorner", randomBtn).CornerRadius = UDim.new(0, 8)
+
+local autoBtn = Instance.new("TextButton", frame) autoBtn.Size = UDim2.new(0.9, 0, 0, 26) autoBtn.Position = UDim2.new(0.05, 0, 0, 116) autoBtn.Text = "Auto Roll Get Rare" autoBtn.BackgroundColor3 = Color3.fromRGB(70, 40, 40) autoBtn.TextColor3 = Color3.fromRGB(255, 215, 0) autoBtn.Font = Enum.Font.GothamBold autoBtn.TextScaled = true Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0, 8)
+
+local canClick = true randomBtn.MouseButton1Click:Connect(function() if not canClick then return end canClick = false statusLabel.Text = "Randomizing..." randomizeEggs(false, false) wait(2) statusLabel.Text = "" canClick = true end)
+
+autoBtn.MouseButton1Click:Connect(function() if not canClick then return end canClick = false local start = tick() while tick() - start < 39 do statusLabel.Text = "Rolling..." randomizeEggs(false, true) wait(0.25) statusLabel.Text = "" wait(0.25) end local rares = randomizeEggs(true, false) if #rares > 0 then statusLabel.Text = "✔ Rare Found:\n" .. table.concat(rares, "\n") else statusLabel.Text = "✔ Rare Pet Found" end wait(3) statusLabel.Text = "" canClick = true end)
+
