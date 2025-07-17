@@ -1,4 +1,4 @@
--- Egg Randomizer GUI – Final Version with Correct Anti Bee Egg Pets
+-- Egg Randomizer GUI – Final Version (Fixed Footer & Layout)
 -- Author: Kuni Hub | Compatible: KRNL, Delta, Fluxus, Mobile & PC
 
 repeat wait() until game:IsLoaded()
@@ -101,7 +101,7 @@ wait(2); loadGui:Destroy()
 -- Main GUI
 local gui2 = Instance.new("ScreenGui", PG); gui2.Name = "KuniEggGUI"
 local f = Instance.new("Frame", gui2)
-f.Size, f.Position, f.BackgroundColor3 = UDim2.new(0,260,0,160), UDim2.new(0.5,-130,0.5,-90), Color3.fromRGB(30,30,30)
+f.Size, f.Position, f.BackgroundColor3 = UDim2.new(0,260,0,180), UDim2.new(0.5,-130,0.5,-90), Color3.fromRGB(30,30,30)
 f.Active, f.Draggable = true, true
 Instance.new("UICorner", f)
 
@@ -109,16 +109,11 @@ local header = Instance.new("TextLabel", f)
 header.Size, header.Text, header.Font, header.TextColor3, header.TextScaled = UDim2.new(1,0,0,30), "Egg Randomizer", Enum.Font.GothamBold, Color3.new(1,1,1), true
 header.BackgroundTransparency = 1
 
-local footer = Instance.new("TextLabel", f)
-footer.Size, footer.Position, footer.Text, footer.Font, footer.TextScaled = UDim2.new(1,0,0,20), UDim2.new(0,0,1,-20), "Made by Kuni Hub", Enum.Font.Gotham, true
-footer.TextColor3, footer.BackgroundTransparency = Color3.fromRGB(150,150,150), 1
-
 local status = Instance.new("TextLabel", f)
-status.Size, status.Position, status.Font, status.TextSize = UDim2.new(1,-20,0,22), UDim2.new(0,10,0,50), Enum.Font.Gotham, 16
+status.Size, status.Position, status.Font, status.TextSize = UDim2.new(1,-20,0,22), UDim2.new(0,10,0,40), Enum.Font.Gotham, 16
 status.TextColor3, status.BackgroundTransparency = Color3.fromRGB(200,255,200), 1
 status.TextScaled = false; status.Text = ""
 
--- Moving dots function
 local function animateStatus(label, baseText, duration)
     spawn(function()
         local start, dots, i = tick(), {".","..","..."}, 1
@@ -132,8 +127,14 @@ end
 
 local canClick = true
 local mBtn = Instance.new("TextButton", f)
-mBtn.Size, mBtn.Position, mBtn.Text, mBtn.Font, mBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,85), "Manual Randomizer", Enum.Font.GothamBold, Color3.fromRGB(50,50,50)
-mBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", mBtn)
+mBtn.Size = UDim2.new(0.9,0,0,30)
+mBtn.Position = UDim2.new(0.05,0,0,80)
+mBtn.Text = "Manual Randomizer"
+mBtn.Font = Enum.Font.GothamBold
+mBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+mBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", mBtn)
+
 mBtn.MouseButton1Click:Connect(function()
     if not canClick then return end
     canClick = false
@@ -145,8 +146,14 @@ mBtn.MouseButton1Click:Connect(function()
 end)
 
 local aBtn = Instance.new("TextButton", f)
-aBtn.Size, aBtn.Position, aBtn.Text, aBtn.Font, aBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,125), "Auto Randomizer", Enum.Font.GothamBold, Color3.fromRGB(70,50,50)
-aBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", aBtn)
+aBtn.Size = UDim2.new(0.9,0,0,30)
+aBtn.Position = UDim2.new(0.05,0,0,115)
+aBtn.Text = "Auto Randomizer"
+aBtn.Font = Enum.Font.GothamBold
+aBtn.BackgroundColor3 = Color3.fromRGB(70,50,50)
+aBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", aBtn)
+
 aBtn.MouseButton1Click:Connect(function()
     if not canClick then return end
     canClick = false
@@ -158,3 +165,12 @@ aBtn.MouseButton1Click:Connect(function()
     wait(3); status.Text = ""
     canClick = true
 end)
+
+local footer = Instance.new("TextLabel", f)
+footer.Size = UDim2.new(1, 0, 0, 20)
+footer.Position = UDim2.new(0, 0, 1, -22)
+footer.Text = "Made by Kuni Hub"
+footer.Font = Enum.Font.Gotham
+footer.TextScaled = true
+footer.TextColor3 = Color3.fromRGB(150, 150, 150)
+footer.BackgroundTransparency = 1
