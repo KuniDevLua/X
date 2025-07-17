@@ -1,36 +1,41 @@
---✅ Egg Randomizer GUI – Final Version with Accurate Anti Bee Egg Pets
---Author: Kuni Hub | Compatible: KRNL, Delta, Fluxus, Mobile & PC
+-- Egg Randomizer GUI – Final Version with Correct Anti Bee Egg Pets
+-- Author: Kuni Hub | Compatible: KRNL, Delta, Fluxus, Mobile & PC
 
 repeat wait() until game:IsLoaded()
-local Players, Workspace, Tween = game:GetService("Players"), game:GetService("Workspace"), game:GetService("TweenService")
-local LP, PG = Players.LocalPlayer, Players.LocalPlayer:WaitForChild("PlayerGui")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local Tween = game:GetService("TweenService")
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
 
 local eggToPets = {
-    ["Common Egg"]          = {"Dog","Golden Lab","Bunny"},
-    ["Uncommon Egg"]        = {"Black Bunny","Cat","Chicken","Deer"},
-    ["Rare Egg"]            = {"Monkey","Orange Tabby","Pig","Rooster","Spotted Deer"},
-    ["Legendary Egg"]       = {"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
-    ["Mythical Egg"]        = {"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
-    ["Bug Egg"]            = {"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
-    ["Bee Egg"]            = {"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
-    ["Anti Bee Egg"]       = {"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
-    ["Paradise Egg"]       = {"Ostrich","Peacock","Capybara","Scarlet Macaw","Mimic Octopus"},
-    ["Oasis Egg"]          = {"Meerkat","Sand Snake","Axolotl","Hyacinth Macaw"},
-    ["Grow a Garden Egg"]  = {"Sprout","Tiny Flower","Green Caterpillar","Garden Snail","Mystic Gnome"},
+    ["Common Egg"] = {"Dog","Golden Lab","Bunny"},
+    ["Uncommon Egg"] = {"Black Bunny","Cat","Chicken","Deer"},
+    ["Rare Egg"] = {"Monkey","Orange Tabby","Pig","Rooster","Spotted Deer"},
+    ["Legendary Egg"] = {"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
+    ["Mythical Egg"] = {"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
+    ["Bug Egg"] = {"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
+    ["Bee Egg"] = {"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
+    ["Anti Bee Egg"] = {"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
+    ["Paradise Egg"] = {"Ostrich","Peacock","Capybara","Scarlet Macaw","Mimic Octopus"},
+    ["Oasis Egg"] = {"Meerkat","Sand Snake","Axolotl","Hyacinth Macaw"},
+    ["Grow a Garden Egg"] = {"Sprout","Tiny Flower","Green Caterpillar","Garden Snail","Mystic Gnome"},
 }
 
 local espList = {}
 local function clearESP()
-    for _,g in ipairs(espList) do if g.Parent then g:Destroy() end end
+    for _, g in ipairs(espList) do
+        if g.Parent then g:Destroy() end
+    end
     espList = {}
 end
 
 local function blink(label)
     spawn(function()
         while label and label.Parent do
-            Tween:Create(label, TweenInfo.new(0.25), {TextColor3 = Color3.fromRGB(0,255,0)}):Play()
+            Tween:Create(label, TweenInfo.new(0.25), {TextColor3=Color3.fromRGB(0,255,0)}):Play()
             wait(0.25)
-            Tween:Create(label, TweenInfo.new(0.25), {TextColor3 = Color3.fromRGB(60,200,60)}):Play()
+            Tween:Create(label, TweenInfo.new(0.25), {TextColor3=Color3.fromRGB(60,200,60)}):Play()
             wait(0.25)
         end
     end)
@@ -43,21 +48,19 @@ local function createESP(part, eggName, petName)
     gui.StudsOffset, gui.Adornee, gui.AlwaysOnTop = Vector3.new(0,2.5,0), part, true
 
     local lbl = Instance.new("TextLabel", gui)
-    lbl.Size = UDim2.new(1,0,1,0)
-    lbl.BackgroundTransparency = 1
+    lbl.Size, lbl.BackgroundTransparency = UDim2.new(1,0,1,0), 1
     lbl.Text = eggName.." | "..petName
     lbl.TextColor3 = Color3.fromRGB(200,255,200)
     lbl.TextStrokeColor3 = Color3.fromRGB(0,0,0)
-    lbl.TextStrokeTransparency = 0.3
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextScaled = true
+    lbl.TextStrokeTransparency = 0.4
+    lbl.Font, lbl.TextScaled = Enum.Font.Gotham, true
 
     if petName == eggToPets[eggName][#eggToPets[eggName]] then blink(lbl) end
     table.insert(espList, gui)
 end
 
-local function getPet(eggName, forceRare, blockRare)
-    local pool = eggToPets[eggName]
+local function getPet(egg, forceRare, blockRare)
+    local pool = eggToPets[egg]
     if not pool then return "Unknown" end
     if forceRare then return pool[#pool] end
     if blockRare then return pool[math.random(1,#pool-1)] end
@@ -67,7 +70,7 @@ end
 local function randomize(forceRare, blockRare)
     clearESP()
     local found = {}
-    for _,mdl in ipairs(Workspace:GetDescendants()) do
+    for _, mdl in ipairs(Workspace:GetDescendants()) do
         if mdl:IsA("Model") and eggToPets[mdl.Name] then
             local part = mdl:FindFirstChildWhichIsA("BasePart")
             if part then
@@ -82,59 +85,76 @@ local function randomize(forceRare, blockRare)
     return found
 end
 
--- Loading (2s)
+-- Loading Screen (2s)
 local loadGui = Instance.new("ScreenGui", PG); loadGui.Name = "KuniLoading"
 local box = Instance.new("Frame", loadGui)
 box.Size, box.Position, box.BackgroundColor3 = UDim2.new(0,260,0,100), UDim2.new(0.5,-130,0.5,-50), Color3.fromRGB(25,25,25)
 Instance.new("UICorner", box)
 local t = Instance.new("TextLabel", box)
-t.Size, t.Text, t.Font, t.TextScaled = UDim2.new(1,0,0.5,0), "Kuni Hub", Enum.Font.GothamBold, true
-t.TextColor3, t.BackgroundTransparency = Color3.new(1,1,1), 1
+t.Size, t.Text, t.Font, t.TextColor3, t.TextScaled = UDim2.new(1,0,0,50), "Kuni Hub", Enum.Font.GothamBold, Color3.new(1,1,1), true
+t.BackgroundTransparency = 1
 local s = Instance.new("TextLabel", box)
-s.Size, s.Position, s.Text, s.Font, s.TextScaled = UDim2.new(1,0,0.5,0), UDim2.new(0,0,0.5,0), "Loading...", Enum.Font.Gotham, true
+s.Size, s.Position, s.Text, s.Font, s.TextScaled = UDim2.new(1,0,0,30), UDim2.new(0,0,0.5,0), "Loading...", Enum.Font.Gotham, true
 s.TextColor3, s.BackgroundTransparency = Color3.new(1,1,1), 1
-wait(2)
-loadGui:Destroy()
+wait(2); loadGui:Destroy()
 
 -- Main GUI
-local gui = Instance.new("ScreenGui", PG); gui.Name = "KuniEggGUI"
-local f = Instance.new("Frame", gui)
-f.Size, f.Position, f.BackgroundColor3 = UDim2.new(0,260,0,150), UDim2.new(0.5,-130,0.5,-85), Color3.fromRGB(30,30,30)
+local gui2 = Instance.new("ScreenGui", PG); gui2.Name = "KuniEggGUI"
+local f = Instance.new("Frame", gui2)
+f.Size, f.Position, f.BackgroundColor3 = UDim2.new(0,260,0,160), UDim2.new(0.5,-130,0.5,-90), Color3.fromRGB(30,30,30)
 f.Active, f.Draggable = true, true
 Instance.new("UICorner", f)
+
 local header = Instance.new("TextLabel", f)
-header.Size, header.Text, header.Font, header.TextColor3, header.TextScaled = UDim2.new(1,0,0,28), "Egg Randomizer", Enum.Font.GothamBold, Color3.new(1,1,1), true
+header.Size, header.Text, header.Font, header.TextColor3, header.TextScaled = UDim2.new(1,0,0,30), "Egg Randomizer", Enum.Font.GothamBold, Color3.new(1,1,1), true
 header.BackgroundTransparency = 1
+
 local footer = Instance.new("TextLabel", f)
 footer.Size, footer.Position, footer.Text, footer.Font, footer.TextScaled = UDim2.new(1,0,0,20), UDim2.new(0,0,1,-20), "Made by Kuni Hub", Enum.Font.Gotham, true
 footer.TextColor3, footer.BackgroundTransparency = Color3.fromRGB(150,150,150), 1
-local status = Instance.new("TextLabel", f)
-status.Size, status.Position, status.Text, status.Font, status.TextScaled = UDim2.new(1,-20,0,20), UDim2.new(0,10,0,35), "", Enum.Font.Gotham, true
-status.TextColor3, status.BackgroundTransparency = Color3.new(1,1,1), 1
 
+local status = Instance.new("TextLabel", f)
+status.Size, status.Position, status.Font, status.TextSize = UDim2.new(1,-20,0,22), UDim2.new(0,10,0,50), Enum.Font.Gotham, 16
+status.TextColor3, status.BackgroundTransparency = Color3.fromRGB(200,255,200), 1
+status.TextScaled = false; status.Text = ""
+
+-- Moving dots function
+local function animateStatus(label, baseText, duration)
+    spawn(function()
+        local start, dots, i = tick(), {".","..","..."}, 1
+        while tick() - start < duration and label.Parent do
+            label.Text = baseText..dots[i]
+            i = i % #dots + 1
+            wait(0.5)
+        end
+    end)
+end
+
+local canClick = true
 local mBtn = Instance.new("TextButton", f)
-mBtn.Size, mBtn.Position, mBtn.Text, mBtn.Font, mBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,70), "Manual Randomizer", Enum.Font.GothamBold, Color3.fromRGB(50,50,50)
-mBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", mBtn)
+mBtn.Size, mBtn.Position, mBtn.Text, mBtn.Font, mBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,85), "Manual Randomizer", Enum.Font.GothamBold, Color3.fromRGB(50,50,50)
+mBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", mBtn)
 mBtn.MouseButton1Click:Connect(function()
-    status.Text = "🔄 Randomizing..."
+    if not canClick then return end
+    canClick = false
+    animateStatus(status, "🔄 Randomizing", 2)
     randomize(false,false)
     wait(2)
     status.Text = ""
+    canClick = true
 end)
 
 local aBtn = Instance.new("TextButton", f)
-aBtn.Size, aBtn.Position, aBtn.Text, aBtn.Font, aBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,110), "Auto Randomizer", Enum.Font.GothamBold, Color3.fromRGB(70,50,50)
-aBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", aBtn)
+aBtn.Size, aBtn.Position, aBtn.Text, aBtn.Font, aBtn.BackgroundColor3 = UDim2.new(0.9,0,0,30), UDim2.new(0.05,0,0,125), "Auto Randomizer", Enum.Font.GothamBold, Color3.fromRGB(70,50,50)
+aBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", aBtn)
 aBtn.MouseButton1Click:Connect(function()
-    status.Text = "🔄 Randomizing..."
+    if not canClick then return end
+    canClick = false
+    animateStatus(status, "🔄 Randomizing", 40)
     local start = tick()
-    while tick()-start < 40 do
-        randomize(false,true)
-        wait(2)
-    end
+    while tick() - start < 40 do randomize(false,true); wait(2) end
     local rares = randomize(true,false)
-    if #rares > 0 then status.Text = "✅ Found:\n"..table.concat(rares, "\n") else status.Text = "✅ Found Rare Pet" end
+    if #rares > 0 then status.Text = "✅ Found:\n"..table.concat(rares,"\n") else status.Text = "✅ Found Rare Pet" end
     wait(3); status.Text = ""
+    canClick = true
 end)
