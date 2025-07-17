@@ -1,0 +1,141 @@
+-- ✅ Egg Randomizer GUI – Final Version with Correct Anti Bee Egg List
+-- Author: Kuni Hub | Powered for KRNL, Delta, Fluxus, Mobile & PC
+
+repeat wait() until game:IsLoaded()
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local eggToPets = {
+    ["Common Egg"] = {"Dog","Golden Lab","Bunny"},
+    ["Uncommon Egg"] = {"Black Bunny","Cat","Chicken","Deer"},
+    ["Rare Egg"] = {"Monkey","Orange Tabby","Pig","Rooster","Spotted Deer"},
+    ["Legendary Egg"] = {"Cow","Silver Monkey","Sea Otter","Turtle","Polar Bear"},
+    ["Mythical Egg"] = {"Grey Mouse","Brown Mouse","Squirrel","Red Giant Ant","Red Fox"},
+    ["Bug Egg"] = {"Snail","Giant Ant","Caterpillar","Praying Mantis","Dragonfly"},
+    ["Bee Egg"] = {"Bee","Honey Bee","Bear Bee","Petal Bee","Queen Bee"},
+    ["Anti Bee Egg"] = {"Wasp","Tarantula Hawk","Moth","Butterfly","Disco Bee"},
+    ["Paradise Egg"] = {"Ostrich","Peacock","Capybara","Scarlet Macaw","Mimic Octopus"},
+    ["Oasis Egg"] = {"Meerkat","Sand Snake","Axolotl","Hyacinth Macaw"},
+    ["Grow a Garden Egg"] = {"Sprout","Tiny Flower","Green Caterpillar","Garden Snail","Mystic Gnome"},
+}
+
+local espList = {}
+local function clearESP()
+    for _, gui in ipairs(espList) do if gui.Parent then gui:Destroy() end end
+    espList = {}
+end
+
+local function blinkEffect(label)
+    spawn(function()
+        while label and label.Parent do
+            TweenService:Create(label, TweenInfo.new(0.25), {TextColor3 = Color3.fromRGB(0,255,0)}):Play()
+            wait(0.25)
+            TweenService:Create(label, TweenInfo.new(0.25), {TextColor3 = Color3.fromRGB(60,200,60)}):Play()
+            wait(0.25)
+        end
+    end)
+end
+
+local function createESP(part, eggName, petName)
+    if part:FindFirstChild("EggESP") then return end
+    local gui = Instance.new("BillboardGui")
+    gui.Name = "EggESP"; gui.Size = UDim2.new(0,160,0,40)
+    gui.StudsOffset = Vector3.new(0,2.5,0); gui.AlwaysOnTop = true
+    gui.Adornee = part; gui.Parent = part
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,0,1,0); label.BackgroundTransparency = 1
+    label.Text = eggName.." | "..petName
+    label.TextColor3 = Color3.fromRGB(200,255,200)
+    label.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+    label.TextStrokeTransparency = 0.3
+    label.Font = Enum.Font.Gotham
+    label.TextScaled = true
+    label.Parent = gui
+
+    if petName == eggToPets[eggName][#eggToPets[eggName]] then
+        blinkEffect(label)
+    end
+
+    table.insert(espList, gui)
+end
+
+local function getRandomPet(eggName, forceRare, blockRare)
+    local pool = eggToPets[eggName]
+    if not pool then return "Unknown" end
+    if forceRare then return pool[#pool] end
+    if blockRare then return pool[math.random(1,#pool-1)] end
+    return pool[math.random(1,#pool)]
+end
+
+local function randomizeEggs(forceRare, blockRare)
+    clearESP()
+    local found = {}
+    for _, m in ipairs(Workspace:GetDescendants()) do
+        if m:IsA("Model") and eggToPets[m.Name] then
+            local part = m:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local pet = getRandomPet(m.Name, forceRare, blockRare)
+                createESP(part, m.Name, pet)
+                if pet == eggToPets[m.Name][#eggToPets[m.Name]] then
+                    table.insert(found, m.Name.." | "..pet)
+                end
+            end
+        end
+    end
+    return found
+end
+
+-- Loading Screen (2s)
+local load = Instance.new("ScreenGui", PlayerGui); load.Name="KuniLoading"
+local box = Instance.new("Frame", load)
+box.Size=UDim2.new(0,260,0,100); box.Position=UDim2.new(0.5,-130,0.5,-50)
+box.BackgroundColor3=Color3.fromRGB(25,25,25); Instance.new("UICorner",box)
+local t=Instance.new("TextLabel",box); t.Size=UDim2.new(1,0,0.5,0)
+t.Text="Kuni Hub"; t.Font=Enum.Font.GothamBold; t.TextColor3=Color3.new(1,1,1)
+t.BackgroundTransparency=1; t.TextScaled=true
+local s=Instance.new("TextLabel",box); s.Size=UDim2.new(1,0,0.5,0)
+s.Position=UDim2.new(0,0,0.5,0); s.Text="Loading..."; s.Font=Enum.Font.Gotham
+s.TextColor3=Color3.new(1,1,1); s.BackgroundTransparency=1; s.TextScaled=true
+wait(2); load:Destroy()
+
+-- Main GUI Setup
+local gui = Instance.new("ScreenGui",PlayerGui); gui.Name="KuniEggGUI"
+local f = Instance.new("Frame",gui)
+f.Size=UDim2.new(0,260,0,150); f.Position=UDim2.new(0.5,-130,0.5,-85)
+f.BackgroundColor3=Color3.fromRGB(30,30,30); f.Active=true; f.Draggable=true
+Instance.new("UICorner",f)
+local title = Instance.new("TextLabel",f)
+title.Size=UDim2.new(1,0,0,28); title.Text="Egg Randomizer"
+title.Font=Enum.Font.GothamBold; title.TextColor3=Color3.new(1,1,1)
+title.BackgroundTransparency=1; title.TextScaled=true
+local footer=Instance.new("TextLabel",f)
+footer.Size=UDim2.new(1,0,0,20); footer.Position=UDim2.new(0,0,1,-20)
+footer.Text="Made by Kuni Hub"; footer.Font=Enum.Font.Gotham
+footer.TextColor3=Color3.fromRGB(150,150,150); footer.BackgroundTransparency=1
+footer.TextScaled=true
+
+-- Buttons
+local manual=Instance.new("TextButton",f)
+manual.Size=UDim2.new(0.9,0,0,30); manual.Position=UDim2.new(0.05,0,0,30)
+manual.Text="Manual Randomizer"; manual.Font=Enum.Font.GothamBold
+manual.TextColor3=Color3.new(1,1,1); manual.BackgroundColor3=Color3.fromRGB(50,50,50)
+Instance.new("UICorner",manual)
+manual.MouseButton1Click:Connect(function()
+    randomizeEggs(false,false)
+end)
+
+local auto=Instance.new("TextButton",f)
+auto.Size=UDim2.new(0.9,0,0,30); auto.Position=UDim2.new(0.05,0,0,70)
+auto.Text="Auto Randomizer"; auto.Font=Enum.Font.GothamBold
+auto.TextColor3=Color3.new(1,1,1); auto.BackgroundColor3=Color3.fromRGB(70,50,50)
+Instance.new("UICorner",auto)
+auto.MouseButton1Click:Connect(function()
+    for i=1,20 do
+        randomizeEggs(false,true)
+        wait(2)
+    end
+end)
