@@ -1,21 +1,20 @@
--- Final Egg Randomizer GUI | Grow a Garden Style
+-- 🍃 Grow a Garden Egg Randomizer GUI — Executor-Compatible One-Piece Script
 
+-- Wait for the game and PlayerGui to be ready
 repeat wait() until game:IsLoaded()
-
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-
 local localPlayer = Players.LocalPlayer or Players:GetPlayers()[1]
-while not localPlayer:FindFirstChild("PlayerGui") do wait() end
+local playerGui = localPlayer:WaitForChild("PlayerGui")
 
+-- Create GUI
 local gui = Instance.new("ScreenGui")
 gui.Name = "RandomizerStyledGUI"
-pcall(function() gui.Parent = game:GetService("CoreGui") end)
-if not gui.Parent then gui.Parent = localPlayer.PlayerGui end
+gui.ResetOnSpawn = false
+gui.Parent = playerGui
 
--- 🌲 Color Theme & Font
+-- Theme colors & font
 local BROWN_BG = Color3.fromRGB(118,61,25)
 local ACCENT_GREEN = Color3.fromRGB(110,196,99)
 local BROWN_BORDER = Color3.fromRGB(51,25,0)
@@ -24,7 +23,7 @@ local BUTTON_RED, BUTTON_RED_H = Color3.fromRGB(255,62,62), Color3.fromRGB(255,1
 local FONT = Enum.Font.FredokaOne
 local TILE = "rbxassetid://15910695828"
 
--- Egg chance table (per Grow a Garden wiki)
+-- Egg chance definitions
 local eggChances = {
   ["Common Egg"]       = {Bunny=33.33, Dog=33.33, ["Golden Lab"]=33.33},
   ["Uncommon Egg"]     = {["Black Bunny"]=25, Chicken=25, Cat=25, Deer=25},
@@ -45,16 +44,23 @@ local eggChances = {
 
 -- State
 local displayed = {}
-local autoOn, startTick = false, 0
+local autoOn = false
+local startTick = 0
 local lastManual = 0
 local rerollFlag = false
 
--- Utility: Weighted random
+-- Weighted random helper
 local function weightedRandom(tbl)
-  local pool, total = {}, 0
-  for pet,ch in pairs(tbl) do if ch>0 then total+=ch; table.insert(pool,{pet, ch}) end end
-  if total==0 then return nil end
-  local pick = math.random()*total
+  local total = 0
+  local pool = {}
+  for pet,ch in pairs(tbl) do
+    if ch > 0 then
+      total += ch
+      table.insert(pool, {pet, ch})
+    end
+  end
+  if total == 0 then return nil end
+  local pick = math.random() * total
   local cum = 0
   for _,v in ipairs(pool) do
     cum += v[2]
@@ -63,56 +69,80 @@ local function weightedRandom(tbl)
   return pool[1][1]
 end
 
--- GUI Layout
+-- GUI layout
 local main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0,260,0,160)
 main.Position = UDim2.new(0.5,-130,0.5,-80)
 main.BackgroundColor3 = BROWN_BG
-main.Active = true; main.Draggable = true
-local mc = Instance.new("UICorner", main); mc.CornerRadius = UDim.new(0,10)
-local ms = Instance.new("UIStroke", main); ms.Color = BROWN_BORDER; ms.Thickness = 2
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = BROWN_BORDER
+stroke.Thickness = 2
 
 local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1,0,0,26); top.BackgroundColor3 = ACCENT_GREEN
-local tc = Instance.new("UICorner", top); tc.CornerRadius = UDim.new(0,10)
+top.Size = UDim2.new(1,0,0,26)
+top.BackgroundColor3 = ACCENT_GREEN
+Instance.new("UICorner", top).CornerRadius = UDim.new(0,10)
 
 local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1,-62,1,0); title.Position = UDim2.new(0,8,0,0)
-title.Text = "Egg Randomizer"; title.Font = FONT; title.TextColor3 = Color3.new(1,1,1)
-title.TextScaled = true; title.BackgroundTransparency = true
+title.Size = UDim2.new(1,-62,1,0)
+title.Position = UDim2.new(0,8,0,0)
+title.BackgroundTransparency = 1
+title.Font = FONT
+title.Text = "Egg Randomizer"
+title.TextScaled = true
+title.TextColor3 = Color3.new(1,1,1)
 title.TextXAlignment = Enum.TextXAlignment.Left
 
 local btnX = Instance.new("TextButton", top)
-btnX.Size = UDim2.new(0,18,0,18); btnX.Position = UDim2.new(1,-25,0.5,-9)
-btnX.Text = "X"; btnX.Font = FONT; btnX.TextColor3 = Color3.new(1,1,1)
+btnX.Size = UDim2.new(0,18,0,18)
+btnX.Position = UDim2.new(1,-25,0.5,-9)
 btnX.BackgroundColor3 = BUTTON_RED
+btnX.Font = FONT
+btnX.Text = "X"
+btnX.TextScaled = true
+btnX.TextColor3 = Color3.new(1,1,1)
 btnX.MouseEnter:Connect(function() btnX.BackgroundColor3 = BUTTON_RED_H end)
 btnX.MouseLeave:Connect(function() btnX.BackgroundColor3 = BUTTON_RED end)
 btnX.MouseButton1Click:Connect(function() gui:Destroy() end)
 
 local bg = Instance.new("ImageLabel", main)
-bg.Size = UDim2.new(1,0,1,0); bg.Image = TILE; bg.BackgroundTransparency = 1
-bg.ScaleType = Enum.ScaleType.Tile; bg.TileSize = UDim2.new(0,96,0,96)
+bg.Size = UDim2.new(1,0,1,0)
+bg.Image = TILE
+bg.BackgroundTransparency = 1
+bg.ScaleType = Enum.ScaleType.Tile
+bg.TileSize = UDim2.new(0,96,0,96)
 
--- Buttons
+-- Buttons area
 local content = Instance.new("Frame", main)
-content.Position = UDim2.new(0,4,0,32); content.Size = UDim2.new(1,-8,1,-60); content.BackgroundTransparency = true
+content.Size = UDim2.new(1,-8,1,-60)
+content.Position = UDim2.new(0,4,0,32)
+content.BackgroundTransparency = 1
 
-local countdown = Instance.new("TextLabel", content)
-countdown.Size = UDim2.new(1,-10,0,20); countdown.Position = UDim2.new(0,5,1,-24)
-countdown.BackgroundTransparency = true; countdown.Font = FONT
-countdown.TextColor3 = Color3.new(1,1,1); countdown.TextScaled = true
+local countdownLabel = Instance.new("TextLabel", content)
+countdownLabel.Size = UDim2.new(1,-10,0,20)
+countdownLabel.Position = UDim2.new(0,5,1,-24)
+countdownLabel.BackgroundTransparency = 1
+countdownLabel.Font = FONT
+countdownLabel.TextScaled = true
+countdownLabel.TextColor3 = Color3.new(1,1,1)
 
-local function makeBtn(text,y,color,hover,func)
+local function makeBtn(text,y,color,hover,fn)
   local b = Instance.new("TextButton", content)
-  b.Size = UDim2.new(0.9,0,0,28); b.Position = UDim2.new(0.05,0,0,y)
-  b.BackgroundColor3 = color; b.Font = FONT; b.Text = text
-  b.TextColor3 = Color3.new(1,1,1); b.TextScaled = true
-  local c = Instance.new("UICorner", b); c.CornerRadius = UDim.new(0,7)
+  b.Size = UDim2.new(0.9,0,0,28)
+  b.Position = UDim2.new(0.05,0,0,y)
+  b.BackgroundColor3 = color
+  b.Font = FONT
+  b.Text = text
+  b.TextScaled = true
+  b.TextColor3 = Color3.new(1,1,1)
+  Instance.new("UICorner", b).CornerRadius = UDim.new(0,7)
   local s = Instance.new("UIStroke", b); s.Color = BROWN_BORDER
   b.MouseEnter:Connect(function() b.BackgroundColor3 = hover end)
   b.MouseLeave:Connect(function() b.BackgroundColor3 = color end)
-  b.MouseButton1Click:Connect(func)
+  b.MouseButton1Click:Connect(fn)
   return b
 end
 
@@ -123,40 +153,38 @@ local btnAuto = makeBtn("[A] Auto Random: OFF", 10, BUTTON_RED, BUTTON_RED_H, fu
 end)
 
 local btnManual = makeBtn("[B] Reroll", 50, BUTTON_BLUE, BUTTON_BLUE_H, function()
-  if tick()-lastManual < 1 then return end
+  if tick() - lastManual < 1 then return end
   lastManual = tick()
   rerollFlag = true
 end)
 
 local footer = Instance.new("TextLabel", main)
-footer.Size = UDim2.new(1,-10,0,16); footer.Position = UDim2.new(0,5,1,-18)
-footer.BackgroundTransparency = true; footer.Font = FONT
-footer.TextColor3 = Color3.new(1,1,1); footer.TextScaled = true
+footer.Size = UDim2.new(1,-10,0,16)
+footer.Position = UDim2.new(0,5,1,-18)
+footer.BackgroundTransparency = 1
+footer.Font = FONT
+footer.TextScaled = true
+footer.TextColor3 = Color3.new(1,1,1)
 footer.Text = "Made by Kuni"
 
--- ESP Setup
+-- ESP setup
 local function createESPLabel(egg)
   local part = egg:FindFirstChildWhichIsA("BasePart") or egg.PrimaryPart
   if not part then return end
   local bgui = Instance.new("BillboardGui", egg)
-  bgui.Name = "FakePetESP"; bgui.Size = UDim2.new(0,200,0,50)
-  bgui.StudsOffset = Vector3.new(0,2.5,0); bgui.AlwaysOnTop = true
+  bgui.Name = "FakePetESP"
+  bgui.Size = UDim2.new(0,200,0,50)
+  bgui.StudsOffset = Vector3.new(0,2.5,0)
+  bgui.AlwaysOnTop = true
   local lbl = Instance.new("TextLabel", bgui)
-  lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1
-  lbl.Font = Enum.Font.SourceSansBold; lbl.TextScaled = true
-  lbl.TextColor3 = Color3.new(1,1,1); lbl.TextStrokeTransparency = 0
-  lbl.Text = "?"
+  lbl.Size = UDim2.new(1,0,1,0)
+  lbl.BackgroundTransparency = 1
+  lbl.Font = Enum.Font.SourceSansBold
+  lbl.TextScaled = true
+  lbl.TextColor3 = Color3.new(1,1,1)
+  lbl.TextStrokeTransparency = 0
+  lbl.Text = ""
   return lbl
-end
-
-for _,egg in ipairs(CollectionService:GetTagged("PetEggServer")) do
-  if egg:GetAttribute("OWNER") == localPlayer.Name then
-    local id = egg:GetAttribute("OBJECT_UUID")
-    if id and not displayed[id] then
-      local lbl = createESPLabel(egg)
-      if lbl then displayed[id] = {eggName = egg:GetAttribute("EggName"), label = lbl, blink = false} end
-    end
-  end
 end
 
 CollectionService:GetInstanceAddedSignal("PetEggServer"):Connect(function(egg)
@@ -168,41 +196,43 @@ CollectionService:GetInstanceAddedSignal("PetEggServer"):Connect(function(egg)
     end
   end
 end)
+
 CollectionService:GetInstanceRemovedSignal("PetEggServer"):Connect(function(egg)
   local id = egg:GetAttribute("OBJECT_UUID")
-  if id and displayed[id] then displayed[id].label:Destroy(); displayed[id] = nil end
+  if id and displayed[id] then
+    displayed[id].label:Destroy()
+    displayed[id] = nil
+  end
 end)
 
--- Main loop
-RunService.Heartbeat:Connect(function(dt)
+-- Main update loop
+RunService.Heartbeat:Connect(function()
   if autoOn or rerollFlag then
     local elapsed = tick() - startTick
     local hideRare = elapsed < 40
     if autoOn then
-      countdown.Text = hideRare and ("Rare unlock in: " .. math.ceil(40-elapsed).."s") or "RARE NOW!"
+      countdownLabel.Text = hideRare and "Rare unlock in: ".. math.ceil(40-elapsed).."s" or "RARE NOW!"
     else
-      countdown.Text = ""
+      countdownLabel.Text = ""
     end
 
-    for id, data in pairs(displayed) do
+    for id,data in pairs(displayed) do
       local pool = eggChances[data.eggName]
       if pool then
-        local temp = {}
+        local tpool = {}
         for pet,ch in pairs(pool) do
-          if not(hideRare and ch <= 1) then
-            temp[pet] = ch
-          end
+          if not (hideRare and ch <= 1) then tpool[pet] = ch end
         end
-        local pet = weightedRandom(temp)
+        local pet = weightedRandom(tpool)
         local isRare = pool[pet] and pool[pet] <= 1
-        data.label.Text = data.eggName .. " | " .. pet
+        data.label.Text = data.eggName.." | "..pet
+
         if isRare and not hideRare then
-          -- Blink green
           data.blink = not data.blink
-          data.label.TextColor3 = data.blink and ACCENT_GREEN or C.white
+          data.label.TextColor3 = data.blink and ACCENT_GREEN or Color3.new(1,1,1)
         else
-          data.label.TextColor3 = C.white
           data.blink = false
+          data.label.TextColor3 = Color3.new(1,1,1)
         end
       end
     end
@@ -215,4 +245,4 @@ RunService.Heartbeat:Connect(function(dt)
   end
 end)
 
-print("✅ Final Egg Randomizer loaded!")
+print("✅ Final Grow a Garden Egg Randomizer loaded!")
