@@ -1,4 +1,4 @@
--- 🍃 Grow a Garden Egg Randomizer GUI — One-Piece Final Script
+-- 🍃 Grow a Garden Egg Randomizer GUI 
 
 -- Wait until game is fully loaded
 repeat task.wait() until game:IsLoaded()
